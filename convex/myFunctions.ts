@@ -21,7 +21,7 @@ export const createFolder = mutation({
     const ownerId = await getAuthUserId(ctx)
 
     if(ownerId === null){
-      return Error("Must be signed in to create a folder")
+      throw new Error("Must be signed in to create a folder")
     }
 
     const dateCreated = Date.now()
@@ -29,4 +29,27 @@ export const createFolder = mutation({
 
     ctx.db.insert("folders", {name: args.name, ownerId, dateCreated, lastUpdated: dateCreated})
   }
+})
+
+export const getFolders = query({
+  args: {
+
+  },
+
+  handler: async (ctx, args) => {
+
+    const ownerId = await getAuthUserId(ctx)
+
+    if(ownerId === null){
+      throw new Error("Must be signed in to view folders")
+    }
+
+    const folders = ctx.db
+    .query("folders")
+    .withIndex("by_ownerId_and_parentFolderId", (q) => q.eq("ownerId", ownerId))
+    .collect()
+
+    return folders
+  }
+  
 })
