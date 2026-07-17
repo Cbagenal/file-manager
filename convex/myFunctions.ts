@@ -7,3 +7,26 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 // See https://docs.convex.dev/functions for more.
 
 // You can read data from the database via a query:
+
+
+
+export const createFolder = mutation({
+  args: {
+    name:v.string()
+
+  },
+
+  handler: async (ctx, args) => {
+
+    const ownerId = await getAuthUserId(ctx)
+
+    if(ownerId === null){
+      return Error("Must be signed in to create a folder")
+    }
+
+    const dateCreated = Date.now()
+
+
+    ctx.db.insert("folders", {name: args.name, ownerId, dateCreated, lastUpdated: dateCreated})
+  }
+})
