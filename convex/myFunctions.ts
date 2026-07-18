@@ -12,8 +12,8 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const createFolder = mutation({
   args: {
-    name:v.string()
-
+    name:v.string(),
+    parentFolderId: v.optional(v.id("folders"))
   },
 
   handler: async (ctx, args) => {
@@ -24,16 +24,27 @@ export const createFolder = mutation({
       throw new Error("Must be signed in to create a folder")
     }
 
+    if(args.parentFolderId !== undefined){
+      const parentFolder = await ctx.db.get("folders", args.parentFolderId)
+
+      if(parentFolder === null || parentFolder.ownerId !== ownerId){
+        throw new Error("No parents folder found.")
+      }
+    }
+
+
+
+
     const dateCreated = Date.now()
 
 
-    ctx.db.insert("folders", {name: args.name, ownerId, dateCreated, lastUpdated: dateCreated})
+    await ctx.db.insert("folders", {name: args.name, ownerId, dateCreated, lastUpdated: dateCreated, parentFolderId: args.parentFolderId})
   }
 })
 
 export const getFolders = query({
   args: {
-
+    parentFolderId: v.optional(v.id("folders"))
   },
 
   handler: async (ctx, args) => {
@@ -46,7 +57,11 @@ export const getFolders = query({
 
     const folders = ctx.db
     .query("folders")
-    .withIndex("by_ownerId_and_parentFolderId", (q) => q.eq("ownerId", ownerId))
+    .withIndex("by_ownerId_and_parentFolderId", (q) => 
+      q
+        .eq("ownerId", ownerId)
+        .eq("parentFolderId", args.parentFolderId)
+      )
     .collect()
 
     return folders
