@@ -6,10 +6,12 @@ import { useState } from "react"
 
 export default function Home(){
   const [folderName, setFolderName] = useState('');
+  const [fileName, setFileName] = useState('');
   const [selectedFolderId, setSelectedFolderID] = useState<Id<"folders"> | undefined>(undefined)
   const [folderHistory, setFolderHistory] = useState<Id<"folders"> | []>([])
   const createFolder = useMutation(api.myFunctions.createFolder)
-  const folders = useQuery(api.myFunctions.getFolders, {parentFolderId: selectedFolderId})
+  const data = useQuery(api.myFunctions.getFolderContent, {parentFolderId: selectedFolderId})
+  const createFile = useMutation(api.myFunctions.createFile)
 
 
   const openFolder = (folderId: Id<"folders">) => {
@@ -30,22 +32,32 @@ export default function Home(){
 
     setFolderHistory((history) => history.slice(0, -1))
   }
-  console.log(folders)
+  console.log(data?.folders)
   return(
     <div>
       <p>home</p>
-      <input value={folderName} onChange={(e) => setFolderName(e.target.value)}/>
 
+      <input value={folderName} onChange={(e) => setFolderName(e.target.value)}/>
       <button onClick={() => createFolder({name: folderName, parentFolderId: selectedFolderId})}>create</button>
+
+      <input value={fileName} onChange={(e) => setFileName(e.target.value)} />
+      <button onClick={() => createFile({name: fileName, folderId: selectedFolderId})}>create</button>
+
       <button onClick={goBack}>back</button>
 
-
       <div className="flex gap-2">
-        {folders?.map((folder) => (
+        {data?.folders?.map((folder) => (
           <div key={folder._id}>
             <p className="bg-gray-500 p-3 rounded-md" onClick={() => openFolder(folder._id)}>{folder.name}</p>
           </div>
-      ))}
+        ))}
+
+        {data?.files.map((file) => (
+          <div key={file._id}>
+            <p className="bg-blue-500 p-3 rounded-md" >{file.name}</p>
+          </div>
+        ))}
+
       </div>
 
       

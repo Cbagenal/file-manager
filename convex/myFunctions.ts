@@ -42,7 +42,7 @@ export const createFolder = mutation({
   }
 })
 
-export const getFolders = query({
+export const getFolderContent = query({
   args: {
     parentFolderId: v.optional(v.id("folders"))
   },
@@ -55,16 +55,58 @@ export const getFolders = query({
       throw new Error("Must be signed in to view folders")
     }
 
-    const folders = ctx.db
-    .query("folders")
-    .withIndex("by_ownerId_and_parentFolderId", (q) => 
-      q
-        .eq("ownerId", ownerId)
-        .eq("parentFolderId", args.parentFolderId)
-      )
-    .collect()
+    const [folders, files] = await Promise.all([
+      ctx.db
+        .query("folders")
+        .withIndex("by_ownerId_and_parentFolderId", (q) => 
+          q
+            .eq("ownerId", ownerId)
+            .eq("parentFolderId", args.parentFolderId)
+          )
+        .collect(),
 
-    return folders
+      ctx.db
+        .query("files")
+        .withIndex("by_ownerId_and_folderId", (q) => 
+          q
+            .eq("ownerId", ownerId)
+            .eq("folderId", args.parentFolderId)
+          )
+        .collect()
+    ])
+
+    return { folders, files}
   }
   
+})
+
+
+export const createFile = mutation({
+  args: {
+    name: v.string(),
+    folderId: v.optional(v.id("folders"))
+  },
+
+  handler: async (ctx, args) => {
+    const ownerId = await getAuthUserId(ctx)
+
+    if(ownerId === null){
+      throw new Error('Must be singed into to create a file.')
+    }
+
+    if(args.folderId !== undefined){
+      const folder = await ctx.db.get("folders", args.folderId)
+
+      if(folder === null || folder.ownerId !== ownerId){
+        throw new Error('No folder found.')
+      }
+    }
+
+    const size = 10
+    const type = 'png'
+    const uploadThingUrl = 'test'
+    const dateCreated = Date.now()
+
+    await ctx.db.insert("files", {name: args.name, folderId: args.folderId, ownerId, type, size, dateCreated, uploadThingUrl})
+  }
 })
