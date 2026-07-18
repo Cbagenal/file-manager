@@ -8,6 +8,9 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+import "@uploadthing/react/styles.css";
+
+
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],

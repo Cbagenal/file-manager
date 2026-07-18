@@ -84,7 +84,10 @@ export const getFolderContent = query({
 export const createFile = mutation({
   args: {
     name: v.string(),
-    folderId: v.optional(v.id("folders"))
+    folderId: v.optional(v.id("folders")),
+    size: v.number(),
+    type: v.string(),
+    uploadThingURL: v.string(),
   },
 
   handler: async (ctx, args) => {
@@ -102,11 +105,8 @@ export const createFile = mutation({
       }
     }
 
-    const size = 10
-    const type = 'png'
-    const uploadThingUrl = 'test'
     const dateCreated = Date.now()
 
-    await ctx.db.insert("files", {name: args.name, folderId: args.folderId, ownerId, type, size, dateCreated, uploadThingUrl})
+    await ctx.db.insert("files", {name: args.name, folderId: args.folderId, ownerId, type:args.type, size: args.size, dateCreated, uploadThingUrl: args.uploadThingURL})
   }
 })
