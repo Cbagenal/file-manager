@@ -2,11 +2,12 @@
 import { api } from "@/convex/_generated/api"
 import { Doc, Id } from "@/convex/_generated/dataModel"
 import { useMutation, useQuery } from "convex/react"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { UploadButton } from "@/utils/uploadthing";
 import Image from "next/image"
 
 export default function Home(){
+  const [fileText, setFileText] = useState('')
   const [folderName, setFolderName] = useState('');
   const [fileName, setFileName] = useState('');
   const [selectedFile, setSelectedFile] = useState<Doc<"files"> | null>(null)
@@ -38,12 +39,24 @@ export default function Home(){
   }
   console.log(data?.folders)
 
-  const openFile = (file: Doc<"files">) => {
+  const openFile = async (file: Doc<"files">) => {
     console.log("File", file)
     setSelectedFile(file)
-    dialogRef.current?.showModal()
 
+    if(file.type.includes('text')){
+      const response = await fetch(file.uploadThingUrl)
+
+      const text = await response.text()
+      setFileText(text)
+    }
   }
+
+  //Ensures state is updated before the imawge is loaded
+  useEffect(() => {
+    if(selectedFile){
+      dialogRef.current?.showModal()
+    }
+    }, [selectedFile])
 
   return(
     <div>
@@ -88,16 +101,24 @@ export default function Home(){
       />
 
 
-      <dialog ref={dialogRef} className="m-auto backdrop:bg-black/80 bg-transparent" onClick={(event) => {
+      <dialog ref={dialogRef} onClose={() => setSelectedFile(null)} className="m-auto backdrop:bg-black/80 bg-transparent" onClick={(event) => {
         if (event.target === event.currentTarget){
           event.currentTarget.close()
         }
       }}>
-        <div className="relative w-[80vw] h-[80vh]" onClick={() => dialogRef.current?.close()}>
+        <div className="relative w-[80vw] h-[80vh]" onClick={(event) => {
+          if (event.target === event.currentTarget){
+            dialogRef.current?.close()
+          }
+        }}>
           <button className="absolute right-0 top-0 bg-red-500 p-2 z-10" onClick={(e) => {e?.stopPropagation(); dialogRef.current?.close();}}>Close</button>
           {selectedFile?.type?.includes("image") && (
-            <Image fill className="object-contain pointer-events-none" src={selectedFile?.uploadThingUrl!} alt={selectedFile?.name!} />
+            <img className="object-contain max-w-[80vw] max-h-[80vh]" src={selectedFile?.uploadThingUrl!} alt={selectedFile?.name!} />
                   )}
+
+          {selectedFile?.type?.includes("text") && (
+            <textarea value={fileText || "Loading..." } className="w-full h-full bg-white pl-3 pt-4 rounded-md" />
+          )}
         </div>
 
       </dialog>
