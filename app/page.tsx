@@ -95,7 +95,9 @@ export default function Home(){
       }}>
         <div className="relative w-[80vw] h-[80vh]" onClick={() => dialogRef.current?.close()}>
           <button className="absolute right-0 top-0 bg-red-500 p-2 z-10" onClick={(e) => {e?.stopPropagation(); dialogRef.current?.close();}}>Close</button>
-          <Image fill className="object-contain pointer-events-none" src={selectedFile?.uploadThingUrl!} alt={selectedFile?.name!} />
+          {selectedFile?.type?.includes("image") && (
+            <Image fill className="object-contain pointer-events-none" src={selectedFile?.uploadThingUrl!} alt={selectedFile?.name!} />
+                  )}
         </div>
 
       </dialog>
