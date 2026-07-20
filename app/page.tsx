@@ -41,6 +41,7 @@ export default function Home(){
 
   const openFile = async (file: Doc<"files">) => {
     console.log("File", file)
+    setFileText(null)
     setSelectedFile(file)
 
     if(file.type.includes('text')){
@@ -53,10 +54,16 @@ export default function Home(){
 
   //Ensures state is updated before the imawge is loaded
   useEffect(() => {
-    if(selectedFile){
+    if (!selectedFile) return
+
+    const isTextFile = selectedFile.type.includes("text")
+    const isReady = !isTextFile || fileText !== null
+
+    if(isReady){
       dialogRef.current?.showModal()
     }
-    }, [selectedFile])
+    
+    }, [selectedFile, fileText])
 
   return(
     <div>
@@ -118,6 +125,10 @@ export default function Home(){
 
           {selectedFile?.type?.includes("text") && (
             <textarea value={fileText || "Loading..." } className="w-full h-full bg-white pl-3 pt-4 rounded-md" />
+          )}
+
+          {selectedFile?.type.includes("pdf") && (
+            <iframe src={selectedFile?.uploadThingUrl} width="100%" height="100%"/>
           )}
         </div>
 
