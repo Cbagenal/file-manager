@@ -5,9 +5,11 @@ import { useMutation, useQuery } from "convex/react"
 import { useEffect, useRef, useState } from "react"
 import { UploadButton } from "@/utils/uploadthing";
 import Image from "next/image"
+import PreviewFileDialog from "@/components/PreviewFileDialog"
+import FolderContents from "@/components/FolderContents"
 
 export default function Home(){
-  const [fileText, setFileText] = useState('')
+
   const [folderName, setFolderName] = useState('');
   const [fileName, setFileName] = useState('');
   const [selectedFile, setSelectedFile] = useState<Doc<"files"> | null>(null)
@@ -16,8 +18,6 @@ export default function Home(){
   const createFolder = useMutation(api.myFunctions.createFolder)
   const data = useQuery(api.myFunctions.getFolderContent, {parentFolderId: selectedFolderId})
   const createFile = useMutation(api.myFunctions.createFile)
-  const dialogRef = useRef<HTMLDialogElement>(null)
-
 
   const openFolder = (folderId: Id<"folders">) => {
     setFolderHistory((history) => [...history, selectedFolderId])
@@ -40,30 +40,9 @@ export default function Home(){
   console.log(data?.folders)
 
   const openFile = async (file: Doc<"files">) => {
-    console.log("File", file)
-    setFileText(null)
-    setSelectedFile(file)
-
-    if(file.type.includes('text')){
-      const response = await fetch(file.uploadThingUrl)
-
-      const text = await response.text()
-      setFileText(text)
+        setSelectedFile(file)
     }
-  }
 
-  //Ensures state is updated before the imawge is loaded
-  useEffect(() => {
-    if (!selectedFile) return
-
-    const isTextFile = selectedFile.type.includes("text")
-    const isReady = !isTextFile || fileText !== null
-
-    if(isReady){
-      dialogRef.current?.showModal()
-    }
-    
-    }, [selectedFile, fileText])
 
   return(
     <div>
@@ -77,20 +56,7 @@ export default function Home(){
 
       <button onClick={goBack}>back</button>
 
-      <div className="flex gap-2">
-        {data?.folders?.map((folder) => (
-          <div key={folder._id}>
-            <button className="bg-gray-500 p-3 rounded-md" onClick={() => openFolder(folder._id)}>{folder.name}</button>
-          </div>
-        ))}
-
-        {data?.files.map((file) => (
-          <div key={file._id}>
-            <button className="bg-blue-500 p-3 rounded-md" onClick={() => openFile(file)}>{file.name}</button>
-          </div>
-        ))}
-
-      </div>
+      <FolderContents data={data} openFile={openFile} openFolder={openFolder}/>
 
       <UploadButton
       appearance={{
@@ -107,34 +73,8 @@ export default function Home(){
         }}
       />
 
+      <PreviewFileDialog  selectedFile={selectedFile} setSelectedFile={setSelectedFile}/>
 
-      <dialog ref={dialogRef} onClose={() => setSelectedFile(null)} className="m-auto backdrop:bg-black/80 bg-transparent" onClick={(event) => {
-        if (event.target === event.currentTarget){
-          event.currentTarget.close()
-        }
-      }}>
-        <div className="relative w-[80vw] h-[80vh]" onClick={(event) => {
-          if (event.target === event.currentTarget){
-            dialogRef.current?.close()
-          }
-        }}>
-          <button className="absolute right-0 top-0 bg-red-500 p-2 z-10" onClick={(e) => {e?.stopPropagation(); dialogRef.current?.close();}}>Close</button>
-          {selectedFile?.type?.includes("image") && (
-            <img className="object-contain max-w-[80vw] max-h-[80vh]" src={selectedFile?.uploadThingUrl!} alt={selectedFile?.name!} />
-                  )}
-
-          {selectedFile?.type?.includes("text") && (
-            <textarea value={fileText || "Loading..." } className="w-full h-full bg-white pl-3 pt-4 rounded-md" />
-          )}
-
-          {selectedFile?.type.includes("pdf") && (
-            <iframe src={selectedFile?.uploadThingUrl} width="100%" height="100%"/>
-          )}
-        </div>
-
-      </dialog>
-
-      
     </div>
   )
 }
