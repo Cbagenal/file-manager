@@ -25,6 +25,5 @@ export default defineSchema({
     parentFolderId: v.optional(v.id("folders")),
     ownerId: v.id("users"),
     dateCreated: v.number(),
-    lastUpdated: v.number()
   }).index("by_ownerId_and_parentFolderId", ["ownerId", "parentFolderId"])
 });

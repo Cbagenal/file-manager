@@ -38,7 +38,7 @@ export const createFolder = mutation({
     const dateCreated = Date.now()
 
 
-    await ctx.db.insert("folders", {name: args.name, ownerId, dateCreated, lastUpdated: dateCreated, parentFolderId: args.parentFolderId})
+    await ctx.db.insert("folders", {name: args.name, ownerId, dateCreated, parentFolderId: args.parentFolderId})
   }
 })
 
