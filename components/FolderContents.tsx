@@ -26,7 +26,7 @@ export default function FolderContents({data, openFile, openFolder}){
         {data?.folders?.map((folder) => (
           <div key={folder._id} className="cursor-pointer">
             <div className={columns}>
-              <button className="flex  gap-2 text-left py-3 rounded-md hover:bg-grey-200" onClick={() => openFolder(folder._id)}><FolderIcon />{folder.name}</button>
+              <button className="flex  gap-2 text-left py-3 rounded-md hover:bg-grey-200" onClick={() => openFolder(folder)}><FolderIcon />{folder.name}</button>
               <p>-</p>
               <p>{new Date(folder.dateCreated).toLocaleDateString()}</p>
             </div>              
