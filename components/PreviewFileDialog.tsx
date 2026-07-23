@@ -1,4 +1,5 @@
 import { Doc } from "@/convex/_generated/dataModel"
+import { Download, DownloadCloudIcon, HardDriveDownload, LucideDownload } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 export default function PreviewFileDialog({selectedFile, setSelectedFile}){
@@ -42,7 +43,12 @@ export default function PreviewFileDialog({selectedFile, setSelectedFile}){
         <div className="flex flex-col gap-2 w-[85vw] h-[85vh]">
           <div className="flex items-center justify-between border-b border-gray-300 p-3">
             <p className="truncate">{selectedFile?.name}</p>
-            <button className="bg-red-600 text-white px-3 py-1 rounded-md" onClick={(e) => {e?.stopPropagation(); dialogRef.current?.close();}}>Close</button>
+            <div className="flex gap-2 items-center">
+              <a href={selectedFile?.uploadThingUrl} rel="noopener noreferrer" target="_blank">
+                <Download className="border-2 border-black/50 rounded-md w-8 h-8 p-1"></Download>
+              </a>
+              <button className="bg-red-600 text-white px-3 py-1 rounded-md" onClick={(e) => {e?.stopPropagation(); dialogRef.current?.close();}}>Close</button>
+            </div>          
           </div>
           
         <div className="relative  min-h-0 flex-1 overflow-auto" onClick={(event) => {

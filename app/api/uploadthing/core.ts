@@ -21,16 +21,19 @@ export const ourFileRouter = {
        */
       maxFileSize: "4MB",
       maxFileCount: 1,
+      contentDisposition: "attachment"
     },
 
     text: {
       maxFileSize: "4MB",
       maxFileCount: 1,
+      contentDisposition: "attachment"
     },
 
     pdf: {
       maxFileSize: "4MB",
       maxFileCount: 1,
+      contentDisposition: "attachment"
     }
   })
     // Set permissions and file types for this FileRoute
