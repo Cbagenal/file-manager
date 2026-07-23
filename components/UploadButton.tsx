@@ -1,6 +1,16 @@
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { UploadButton as UploadThingButton } from "@/utils/uploadthing";
+import { useMutation } from "convex/react";
 
-export default function UploadButton(createFile){
+type UploadButtonProps = {
+  selectedFolderId?: Id<"folders">;
+};
+
+
+export default function UploadButton({selectedFolderId}: UploadButtonProps){
+  const createFile = useMutation(api.myFunctions.createFile);
+
     return(
         <UploadThingButton
               appearance={{
@@ -10,6 +20,7 @@ export default function UploadButton(createFile){
                 onClientUploadComplete={(res) => {
                   const data = res[0]
                   createFile({name: data.name, type: data.type, size: data.size, folderId: selectedFolderId, uploadThingURL: data.ufsUrl})
+                  console.log(res)
                 }}
                 onUploadError={(error: Error) => {
                   // Do something with the error.

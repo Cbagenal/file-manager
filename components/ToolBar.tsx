@@ -18,7 +18,7 @@ export default function ToolBar({goBack, selectedFolderId}){
         </div>
 
         <div className="flex gap-2">
-            <UploadButton />
+            <UploadButton selectedFolderId={selectedFolderId}/>
             <button onClick={goBack} className="bg-blue-600 rounded-md p-2 text-white ">Back</button>
         </div>
       </div>

@@ -110,3 +110,17 @@ export const createFile = mutation({
     await ctx.db.insert("files", {name: args.name, folderId: args.folderId, ownerId, type:args.type, size: args.size, dateCreated, uploadThingUrl: args.uploadThingURL})
   }
 })
+
+export const getCurrentUser = query({
+  args:{},
+
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx)
+
+    if(userId === null){
+      return null;
+    }
+
+    return await ctx.db.get("users", userId)
+  }
+})
