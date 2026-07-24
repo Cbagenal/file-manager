@@ -66,7 +66,7 @@ export default function PreviewFileDialog({selectedFile, setSelectedFile}){
          
 
           {selectedFile?.type?.includes("text") && (
-            <textarea value={fileText || "Loading..." } readOnly className="w-full h-full bg-white pl-3 pt-4 rounded-xl" />
+            <textarea value={fileText || "Loading..." } readOnly className="focus:outline-none w-full h-full bg-white pl-3 pt-4 rounded-xl" />
           )}
 
           {selectedFile?.type.includes("pdf") && (

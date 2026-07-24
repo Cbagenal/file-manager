@@ -15,7 +15,8 @@ export default defineSchema({
     name: v.string(),
     size: v.number(),
     dateCreated: v.number(),
-    uploadThingUrl: v.string()
+    uploadThingUrl: v.string(),
+    uploadThingKey: v.string()
   })
   .index("by_ownerId_and_folderId", ["ownerId", "folderId"]),
 

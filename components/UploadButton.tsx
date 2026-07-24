@@ -19,7 +19,7 @@ export default function UploadButton({selectedFolderId}: UploadButtonProps){
                 endpoint="imageUploader"
                 onClientUploadComplete={(res) => {
                   const data = res[0]
-                  createFile({name: data.name, type: data.type, size: data.size, folderId: selectedFolderId, uploadThingURL: data.ufsUrl})
+                  createFile({name: data.name, type: data.type, size: data.size, folderId: selectedFolderId, uploadThingURL: data.ufsUrl, uploadThingKey: data.key})
                   console.log(res)
                 }}
                 onUploadError={(error: Error) => {

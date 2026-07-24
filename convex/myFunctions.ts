@@ -1,13 +1,15 @@
 import { v } from "convex/values";
-import { query, mutation, action } from "./_generated/server";
-import { api } from "./_generated/api";
+import { query, mutation, action, internalQuery, internalMutation } from "./_generated/server";
+import { api, internal } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { UTApi } from "uploadthing/server";
 
 // Write your Convex functions in any file inside this directory (`convex`).
 // See https://docs.convex.dev/functions for more.
 
 // You can read data from the database via a query:
 
+const utapi = new UTApi()
 
 
 export const createFolder = mutation({
@@ -88,13 +90,14 @@ export const createFile = mutation({
     size: v.number(),
     type: v.string(),
     uploadThingURL: v.string(),
+    uploadThingKey: v.string()
   },
 
   handler: async (ctx, args) => {
     const ownerId = await getAuthUserId(ctx)
 
     if(ownerId === null){
-      throw new Error('Must be singed into to create a file.')
+      throw new Error('You must be singed into to create a file.')
     }
 
     if(args.folderId !== undefined){
@@ -107,7 +110,7 @@ export const createFile = mutation({
 
     const dateCreated = Date.now()
 
-    await ctx.db.insert("files", {name: args.name, folderId: args.folderId, ownerId, type:args.type, size: args.size, dateCreated, uploadThingUrl: args.uploadThingURL})
+    await ctx.db.insert("files", {name: args.name, folderId: args.folderId, ownerId, type:args.type, size: args.size, dateCreated, uploadThingUrl: args.uploadThingURL, uploadThingKey: args.uploadThingKey})
   }
 })
 
@@ -122,5 +125,48 @@ export const getCurrentUser = query({
     }
 
     return await ctx.db.get("users", userId)
+  }
+})
+
+export const getFileToDelete = internalQuery({
+  args: { fileToDelete: v.id("files")},
+
+  handler: async (ctx, args) => {
+
+    const userId = await getAuthUserId(ctx)
+
+    if(userId === null){
+      throw new Error("Must be signed in to delete a folder")
+    }
+
+    const file = await ctx.db.get("files", args.fileToDelete)
+
+    if(file === null || file.ownerId !== userId){
+      throw new Error("No folder found")
+    }
+
+    return file
+
+  }
+})
+
+export const deleteFile = internalMutation({
+  args: { fileToDelete: v.id("files")},
+
+  handler: async (ctx, args) => {
+
+    const userId = await getAuthUserId(ctx)
+
+    if(userId === null){
+      throw new Error('You must be signed in to delete a file.')
+    }
+
+    const file = await ctx.db.get("files", args.fileToDelete)
+
+    if(file === null || file.ownerId !== userId){
+      throw new Error('File not found.')
+    }
+
+    await ctx.db.delete("files", args.fileToDelete)
   }
 })

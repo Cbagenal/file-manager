@@ -1,9 +1,11 @@
-import { Download, FolderIcon } from "lucide-react";
-import { useState } from "react";
+import { api } from "@/convex/_generated/api";
+import { useAction, useMutation } from "convex/react";
+import { Delete, Download, FolderIcon } from "lucide-react";
 
 export default function FolderContents({data, openFile, openFolder}){
+  const deleteFile = useAction(api.fileActions.deleteFile);
 
-  const columns = "grid grid-cols-[minmax(0,1fr)_7rem_7rem_7rem] items-center group-hover:bg-gray-200"
+  const columns = "grid grid-cols-[minmax(0,1fr)_7rem_7rem_4rem_7rem] items-center group-hover:bg-gray-200"
 
   const formatFileSize = (size: number) => {
     if(size < 1000){
@@ -38,13 +40,14 @@ export default function FolderContents({data, openFile, openFolder}){
 
         {data?.files.map((file) => (
           <div key={file._id} className="group">
-            <div className={columns} >
+            <div className={columns}>
               <button className="text-left p-3 py-4 rounded-md" onClick={() => openFile(file)}>{file.name}</button>
               <p>{formatFileSize(file.size)}</p>
               <p>{new Date(file.dateCreated).toLocaleDateString()}</p>
               <a className="invisible group-hover:visible" href={file.uploadThingUrl} rel="noopener noreferrer" target="_blank">
                 <Download className=" border-2 border-black/50 rounded-md w-8 h-8 p-1"></Download>
               </a>
+              <button onClick={() => deleteFile({fileToDelete: file._id})} className="invisible group-hover:visible"><Delete></Delete></button>
             </div>
             
             <div className="h-[1px] bg-black/50"/>
