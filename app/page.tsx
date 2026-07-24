@@ -10,7 +10,7 @@ import FolderContents from "@/components/FolderContents"
 import ToolBar from "@/components/ToolBar"
 import Breadcrumb from "@/components/Breadcrumb"
 
-type FolderHistoryItem = {
+export type FolderHistoryItem = {
   id: Id<"folders">;
   name: string;
 };

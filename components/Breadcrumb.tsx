@@ -1,4 +1,16 @@
-export default function Breadcrumb({folderHistory, openBreadcrumb}){
+import { Id } from "@/convex/_generated/dataModel"
+
+type FolderHistoryItem = {
+    folderHistory: Id<"folders">;
+    name: string;
+}
+
+type BreadcrumbProps = {
+    folderHistory: FolderHistoryItem[];
+    openBreadcrumb: (folderIndex: number) => void;
+}
+
+export default function Breadcrumb({folderHistory, openBreadcrumb}: BreadcrumbProps){
 
     return(
         <div className="flex gap-3">

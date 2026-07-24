@@ -1,10 +1,20 @@
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useAction, useMutation } from "convex/react";
-import { Delete, Download, FolderIcon } from "lucide-react";
+import { Delete, DeleteIcon, Download, FolderIcon, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 
-export default function FolderContents({data, openFile, openFolder}){
+type FolderContentsProps = {
+  data: {
+    folders: Doc<"folders">[];
+    files: Doc<"files">[];
+  } | undefined
+
+  openFile: (file: Doc<"files">) => void;
+  openFolder: (folder: Doc<"folders">) => void;
+}
+
+export default function FolderContents({data, openFile, openFolder}: FolderContentsProps){
   const[selectedFile, setSelectedFile] = useState<Doc<"files"> | null>(null);
   const deleteFile = useAction(api.fileActions.deleteFile);
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -51,7 +61,7 @@ export default function FolderContents({data, openFile, openFolder}){
               <a className="invisible group-hover:visible" href={file.uploadThingUrl} rel="noopener noreferrer" target="_blank">
                 <Download className=" border-2 border-black/50 rounded-md w-8 h-8 p-1"></Download>
               </a>
-              <button onClick={() => {setSelectedFile(file); dialogRef.current?.showModal()}}>Delete</button>
+              <button className="invisible group-hover:visible" onClick={() => {setSelectedFile(file); dialogRef.current?.showModal()}}><Trash2></Trash2></button>
             </div>
             
             <div className="h-[1px] bg-black/50"/>
@@ -61,7 +71,7 @@ export default function FolderContents({data, openFile, openFolder}){
         ))}
 
         <dialog ref={dialogRef} className="m-auto rounded-xl ">
-          <div className="p-6 flex w-[20vw] h-[17vh] bg-white flex-col items-center">
+          <div className="p-6 flex w-96 h-60 bg-white flex-col items-center">
              <p className="text-red-600 text-2xl">Delete File</p>
              <p className="mt-4 text-lg">Are you sure you want to delete {selectedFile?.name}?</p>
              <div className="mt-8 flex gap-4 justify-evenly w-full">

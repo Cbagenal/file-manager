@@ -1,8 +1,13 @@
 import { Doc } from "@/convex/_generated/dataModel"
 import { Download, DownloadCloudIcon, HardDriveDownload, LucideDownload } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react"
 
-export default function PreviewFileDialog({selectedFile, setSelectedFile}){
+type PreviewFileDialogProps = {
+  selectedFile: Doc<"files"> | null;
+  setSelectedFile: Dispatch<SetStateAction<Doc<"files"> | null>>
+}
+
+export default function PreviewFileDialog({selectedFile, setSelectedFile}: PreviewFileDialogProps ){
     const dialogRef = useRef<HTMLDialogElement>(null)
     const [fileText, setFileText] = useState('')
 
