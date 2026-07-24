@@ -1,9 +1,13 @@
 import { api } from "@/convex/_generated/api";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useAction, useMutation } from "convex/react";
 import { Delete, Download, FolderIcon } from "lucide-react";
+import { useRef, useState } from "react";
 
 export default function FolderContents({data, openFile, openFolder}){
+  const[selectedFile, setSelectedFile] = useState<Doc<"files"> | null>(null);
   const deleteFile = useAction(api.fileActions.deleteFile);
+  const dialogRef = useRef<HTMLDialogElement>(null)
 
   const columns = "grid grid-cols-[minmax(0,1fr)_7rem_7rem_4rem_7rem] items-center group-hover:bg-gray-200"
 
@@ -47,7 +51,7 @@ export default function FolderContents({data, openFile, openFolder}){
               <a className="invisible group-hover:visible" href={file.uploadThingUrl} rel="noopener noreferrer" target="_blank">
                 <Download className=" border-2 border-black/50 rounded-md w-8 h-8 p-1"></Download>
               </a>
-              <button onClick={() => deleteFile({fileToDelete: file._id})} className="invisible group-hover:visible"><Delete></Delete></button>
+              <button onClick={() => {setSelectedFile(file); dialogRef.current?.showModal()}}>Delete</button>
             </div>
             
             <div className="h-[1px] bg-black/50"/>
@@ -55,6 +59,17 @@ export default function FolderContents({data, openFile, openFolder}){
           </div>
 
         ))}
+
+        <dialog ref={dialogRef} className="m-auto rounded-xl ">
+          <div className="p-6 flex w-[20vw] h-[17vh] bg-white flex-col items-center">
+             <p className="text-red-600 text-2xl">Delete File</p>
+             <p className="mt-4 text-lg">Are you sure you want to delete {selectedFile?.name}?</p>
+             <div className="mt-8 flex gap-4 justify-evenly w-full">
+              <button onClick={() => {deleteFile({fileToDelete: selectedFile?._id}); dialogRef.current?.close()}} className="bg-red-600 rounded-lg w-full px-6 text-white text-xl">Delete</button>
+              <button onClick={() => dialogRef.current?.close()} className="bg-gray-600 rounded-lg py-3 w-full text-white text-xl">Cancel</button>
+             </div>
+          </div>
+        </dialog>
 
     </div>
   )
