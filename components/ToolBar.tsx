@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import UploadButton from "./UploadButton";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
-export default function ToolBar({goBack, selectedFolderId}){
+type ToolBarProps = {
+    goBack: () => void;
+    selectedFolderId?: Id<"folders">;
+}
+
+export default function ToolBar({goBack, selectedFolderId}: ToolBarProps){
     const [folderName, setFolderName] = useState('')
     const createFolder = useMutation(api.myFunctions.createFolder)
     

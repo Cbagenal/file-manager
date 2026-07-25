@@ -1,7 +1,7 @@
 import { Id } from "@/convex/_generated/dataModel"
 
 type FolderHistoryItem = {
-    folderHistory: Id<"folders">;
+    id: Id<"folders">;
     name: string;
 }
 
@@ -17,7 +17,7 @@ export default function Breadcrumb({folderHistory, openBreadcrumb}: BreadcrumbPr
             {folderHistory.map((folder, i) => (
                 <div className="flex gap-2" key={i}>
                     <p>{i > 0 && ">"}</p>
-                    <button onClick={() => openBreadcrumb(i)} key={folder._id}>{folder.name}</button>
+                    <button onClick={() => openBreadcrumb(i)} key={i}>{folder.name}</button>
                 </div>
             
             ))}

@@ -48,7 +48,7 @@ export default function FolderContents({data, openFile, openFolder}: FolderConte
               <p>{new Date(folder.dateCreated).toLocaleDateString()}</p>
             </div>              
             
-            <div className="h-[1px] bg-black/50"/>
+            <div className="h-px bg-black/50"/>
           </div>
         ))}
 
@@ -64,7 +64,7 @@ export default function FolderContents({data, openFile, openFolder}: FolderConte
               <button className="invisible group-hover:visible" onClick={() => {setSelectedFile(file); dialogRef.current?.showModal()}}><Trash2></Trash2></button>
             </div>
             
-            <div className="h-[1px] bg-black/50"/>
+            <div className="h-px bg-black/50"/>
           
           </div>
 
@@ -75,7 +75,7 @@ export default function FolderContents({data, openFile, openFolder}: FolderConte
              <p className="text-red-600 text-2xl">Delete File</p>
              <p className="mt-4 text-lg">Are you sure you want to delete {selectedFile?.name}?</p>
              <div className="mt-8 flex gap-4 justify-evenly w-full">
-              <button onClick={() => {deleteFile({fileToDelete: selectedFile?._id}); dialogRef.current?.close()}} className="bg-red-600 rounded-lg w-full px-6 text-white text-xl">Delete</button>
+              <button onClick={() => {if(selectedFile === null) return; deleteFile({fileToDelete: selectedFile?._id}); dialogRef.current?.close()}} className="bg-red-600 rounded-lg w-full px-6 text-white text-xl">Delete</button>
               <button onClick={() => dialogRef.current?.close()} className="bg-gray-600 rounded-lg py-3 w-full text-white text-xl">Cancel</button>
              </div>
           </div>
