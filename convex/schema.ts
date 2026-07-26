@@ -28,6 +28,7 @@ export default defineSchema({
     dateCreated: v.number(),
   }).index("by_ownerId_and_parentFolderId", ["ownerId", "parentFolderId"]),
 
+
   fileShares: defineTable(
   v.union(
     v.object({
@@ -37,13 +38,19 @@ export default defineSchema({
       createdBy: v.id("users"),
       createdAt: v.number(),
     }),
+
     v.object({
-      shareType: v.literal("user"),
+      shareType: v.literal("private"),
       fileId: v.id("files"),
+      token: v.string(),
       sharedWithUserId: v.id("users"),
       createdBy: v.id("users"),
       createdAt: v.number(),
     }),
   ),
-).index("by_token", ['token']).index("by_createdBy", ['createdBy']).index("by_fileId", ['fileId'])
+)
+  .index("by_token", ["token"])
+  .index("by_createdBy", ["createdBy"])
+  .index("by_fileId", ["fileId"])
+  
 });

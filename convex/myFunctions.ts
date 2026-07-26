@@ -170,3 +170,60 @@ export const deleteFile = internalMutation({
     await ctx.db.delete("files", args.fileToDelete)
   }
 })
+
+export const shareFile = mutation({
+  args: {
+    fileId: v.id("files"),
+    shareType: v.union(v.literal("public"), v.literal("private")),
+    sharedWithEmail: v.optional(v.string())
+  },
+
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if(userId === null){
+      throw new Error("You must be signed in to share a file.")
+    }
+
+    const file = await ctx.db.get("files", args.fileId)
+
+    if(file === null || file.ownerId !== userId){
+      throw new Error("No file found.")
+    }
+
+    const createdAt = Date.now()
+    const token = crypto.randomUUID()
+
+    if(args.shareType === 'public'){
+
+      return await ctx.db.insert("fileShares", {
+          fileId: file._id,
+          createdAt,
+          createdBy: userId,
+          shareType: args.shareType,
+          token
+      })
+    }
+
+    const sharedWithUser = await ctx.db
+    .query("users")
+    .withIndex("email", (q) => 
+      q.eq("email", args.sharedWithEmail))
+    .unique()
+
+    if(sharedWithUser === null){
+      throw new Error("No user found with that email.")
+    }
+
+    if(args.shareType === 'private'){
+      return await ctx.db.insert("fileShares", {
+        fileId: file._id,
+        shareType: args.shareType,
+        createdAt,
+        createdBy: userId,
+        token,
+        sharedWithUserId: sharedWithUser._id,
+      })
+    }
+  }
+})
