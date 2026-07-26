@@ -26,5 +26,24 @@ export default defineSchema({
     parentFolderId: v.optional(v.id("folders")),
     ownerId: v.id("users"),
     dateCreated: v.number(),
-  }).index("by_ownerId_and_parentFolderId", ["ownerId", "parentFolderId"])
+  }).index("by_ownerId_and_parentFolderId", ["ownerId", "parentFolderId"]),
+
+  fileShares: defineTable(
+  v.union(
+    v.object({
+      shareType: v.literal("public"),
+      fileId: v.id("files"),
+      token: v.string(),
+      createdBy: v.id("users"),
+      createdAt: v.number(),
+    }),
+    v.object({
+      shareType: v.literal("user"),
+      fileId: v.id("files"),
+      sharedWithUserId: v.id("users"),
+      createdBy: v.id("users"),
+      createdAt: v.number(),
+    }),
+  ),
+).index("by_token", ['token']).index("by_createdBy", ['createdBy']).index("by_fileId", ['fileId'])
 });
