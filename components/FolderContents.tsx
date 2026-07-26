@@ -18,8 +18,9 @@ export default function FolderContents({data, openFile, openFolder}: FolderConte
   const[selectedFile, setSelectedFile] = useState<Doc<"files"> | null>(null);
   const deleteFile = useAction(api.fileActions.deleteFile);
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const shareFile = useMutation(api.myFunctions.shareFile)
 
-  const columns = "grid grid-cols-[minmax(0,1fr)_7rem_7rem_4rem_7rem] items-center group-hover:bg-gray-200"
+  const columns = "grid grid-cols-[minmax(0,1fr)_7rem_7rem_4rem_7rem_7rem] items-center group-hover:bg-gray-200"
 
   const formatFileSize = (size: number) => {
     if(size < 1000){
@@ -62,6 +63,7 @@ export default function FolderContents({data, openFile, openFolder}: FolderConte
                 <Download className=" border-2 border-black/50 rounded-md w-8 h-8 p-1"></Download>
               </a>
               <button className="invisible group-hover:visible" onClick={() => {setSelectedFile(file); dialogRef.current?.showModal()}}><Trash2></Trash2></button>
+              <button onClick={() => shareFile({fileId: file._id, shareType: "public"})}>Share</button>
             </div>
             
             <div className="h-px bg-black/50"/>

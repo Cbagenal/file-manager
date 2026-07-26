@@ -3,6 +3,7 @@ import { query, mutation, action, internalQuery, internalMutation } from "./_gen
 import { api, internal } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { UTApi } from "uploadthing/server";
+import { useQuery } from "convex/react";
 
 // Write your Convex functions in any file inside this directory (`convex`).
 // See https://docs.convex.dev/functions for more.
@@ -225,5 +226,27 @@ export const shareFile = mutation({
         sharedWithUserId: sharedWithUser._id,
       })
     }
+  }
+})
+
+export const getShareToken = query({
+  args: {token: v.string()},
+
+  handler: async (ctx, args) => {
+
+
+     const share = await ctx.db
+    .query("fileShares")
+    .withIndex("by_token", (q) =>
+      q.eq("token", args.token))
+    .unique()
+
+    if(share === null){
+      throw new Error("No file found.")
+    }
+
+    const file = await ctx.db.get("files", share.fileId)
+
+    return file
   }
 })
