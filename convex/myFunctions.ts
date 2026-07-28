@@ -229,7 +229,7 @@ export const shareFile = mutation({
   }
 })
 
-export const getShareToken = query({
+export const getShareFile = query({
   args: {token: v.string()},
 
   handler: async (ctx, args) => {
@@ -242,11 +242,31 @@ export const getShareToken = query({
     .unique()
 
     if(share === null){
-      throw new Error("No file found.")
+      return { status: "not_found" as const};
+    }
+
+    if(share.shareType === 'private'){
+      const userId = await getAuthUserId(ctx);
+
+      if(userId === null){
+        return { status: "not_found" as const};
+      }
+
+      const canAccess = share.sharedWithUserId === userId || share.createdBy === userId
+
+      if(!canAccess){
+          return { status: "not_found" as const};
+      }
+
     }
 
     const file = await ctx.db.get("files", share.fileId)
 
-    return file
+    if(file === null){
+      return { status: "not_found" as const};
+    }
+
+    return { status: "success" as const, file}
+
   }
 })
