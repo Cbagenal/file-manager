@@ -1,7 +1,7 @@
 import { api } from "@/convex/_generated/api";
-import { Doc, Id } from "@/convex/_generated/dataModel";
+import { Doc } from "@/convex/_generated/dataModel";
 import { useAction, useMutation } from "convex/react";
-import { Delete, DeleteIcon, Download, FolderIcon, Trash2 } from "lucide-react";
+import { Download, FolderIcon, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 
 type FolderContentsProps = {
@@ -22,6 +22,7 @@ export default function FolderContents({data, openFile, openFolder}: FolderConte
   const shareDialogRef = useRef<HTMLDialogElement>(null)
   const [shareType, setShareType] = useState("")
   const [shareEmail, setShareEmail] = useState("")
+  const [shareUrl, setShareUrl] = useState<string | null>(null)
 
   const columns = "grid grid-cols-[minmax(0,1fr)_7rem_7rem_4rem_7rem_7rem] items-center group-hover:bg-gray-200"
 
@@ -37,18 +38,21 @@ export default function FolderContents({data, openFile, openFolder}: FolderConte
     }
   } 
 
-  const handleShareFile = (shareType: string, shareEmail: string) => {
+  const handleShareFile = async (shareType: string, shareEmail: string) => {
     if(selectedFile === null) return
+    if(shareType !== "public" && shareType !== "private") return;
 
-    if(shareType === "public"){
-      shareFile({shareType, fileId: selectedFile._id})
-    }
+    const token = await shareFile({
+      fileId: selectedFile._id,
+      shareType,
+      ...(shareType === "private"
+        ? { sharedWithEmail: shareEmail }
+          : {}),
+    });
 
-    if(shareType === "private"){
-      shareFile({shareType, fileId: selectedFile._id, sharedWithEmail: shareEmail})
-    }
+    setShareUrl(`${window.location.origin}/share/${token}`)
   }
-    
+
   return(
       <div className="flex flex-col">
         <div className={columns}>
@@ -78,7 +82,7 @@ export default function FolderContents({data, openFile, openFolder}: FolderConte
                 <Download className=" border-2 border-black/50 rounded-md w-8 h-8 p-1"></Download>
               </a>
               <button className="invisible group-hover:visible" onClick={() => {setSelectedFile(file); deleteDialogRef.current?.showModal()}}><Trash2></Trash2></button>
-              <button onClick={() => {setSelectedFile(file); shareDialogRef.current?.showModal()}}>Share</button>
+              <button onClick={() => {setSelectedFile(file); setShareUrl(null); shareDialogRef.current?.showModal()}}>Share</button>
             </div>
             
             <div className="h-px bg-black/50"/>
@@ -107,14 +111,15 @@ export default function FolderContents({data, openFile, openFolder}: FolderConte
                 <button className={`w-full rounded-md py-3 ${shareType === "private" ? "bg-blue-600 text-white transition ease-in-out duration-200": "bg-gray-200"}`} onClick={() => setShareType("private")}>Private</button>
              </div>
              {shareType === "private" && <input value={shareEmail} onChange={(e) => setShareEmail(e.target.value)} placeholder="Email" className="mt-2 w-full py-2 pl-2 bg-gray-200 rounded-md" />}
-             <button className="mt-3 bg-gray-600 py-3 w-full rounded-md text-white" onClick={() => {handleShareFile(shareType, shareEmail); shareDialogRef.current?.close()}}>Share</button>
+             <button className="mt-3 bg-gray-600 py-3 w-full rounded-md text-white" onClick={() => {handleShareFile(shareType, shareEmail)}}>Share</button>
+             {shareUrl && (
+              <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="mt-3 break-all rounded-md bg-gray-200 p-2 text-blue-600 underline">
+                {shareUrl}
+              </a>
+             )}
              <button className="mt-2 bg-red-600 py-3 w-full rounded-md text-white" onClick={() => shareDialogRef.current?.close()}>Cancel</button>
           </div>
         </dialog>
-
-
-
-
     </div>
   )
 }

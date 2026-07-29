@@ -1,17 +1,11 @@
 import { v } from "convex/values";
-import { query, mutation, action, internalQuery, internalMutation } from "./_generated/server";
-import { api, internal } from "./_generated/api";
+import { query, mutation, internalQuery, internalMutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { UTApi } from "uploadthing/server";
-import { useQuery } from "convex/react";
 
 // Write your Convex functions in any file inside this directory (`convex`).
 // See https://docs.convex.dev/functions for more.
 
 // You can read data from the database via a query:
-
-const utapi = new UTApi()
-
 
 export const createFolder = mutation({
   args: {
@@ -197,13 +191,15 @@ export const shareFile = mutation({
 
     if(args.shareType === 'public'){
 
-      return await ctx.db.insert("fileShares", {
+       await ctx.db.insert("fileShares", {
           fileId: file._id,
           createdAt,
           createdBy: userId,
           shareType: args.shareType,
           token
       })
+
+      return token
     }
 
     const sharedWithUser = await ctx.db
@@ -217,7 +213,7 @@ export const shareFile = mutation({
     }
 
     if(args.shareType === 'private'){
-      return await ctx.db.insert("fileShares", {
+      await ctx.db.insert("fileShares", {
         fileId: file._id,
         shareType: args.shareType,
         createdAt,
@@ -225,7 +221,10 @@ export const shareFile = mutation({
         token,
         sharedWithUserId: sharedWithUser._id,
       })
+
+      return token
     }
+
   }
 })
 
